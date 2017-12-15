@@ -1,0 +1,407 @@
+// Link: https://www.khanacademy.org/cs/points-race-scoreboard-for-khan-academy-v113-aka-camtracker/5367803243790336
+
+<!DOCTYPE html>
+<!--    Points Race Scoreboard for Khan Academy v1.13 by SpongeJr 
+https://www.khanacademy.org/computer-programming/points-race-scoreboard-for-khan-academy/5202442481434624
+-->
+<!--    This project may be copied to anywhere and freely modified,
+        as long as the MIT license at the end of the program remains intact.
+        Using a spin-off not necessary, but is appreciated.
+    
+        Please also leave the link to the original in comments at the top
+        if you make a non-spin-off copy.
+        ENJOY! ...and stay tuned... improvements are coming!
+-->
+<!--        To personalize the program for you:
+            Go down to "PROGRAM CONSTANTS" section (about line 110ish)
+            
+            Change YOUR_USERNAME to your own, and set YOUR_START_POINTS,
+            change YOUR_GOAL if you want something other than 50K,
+            and change your opponent if you wish!
+-->
+<!--    If the animations are a problem for you (e.g., performance reasons),
+        set USE_EFFECTS = false in program constants.
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Points Race Scoreboard for Khan Academy v1.13 (AKA "CamTracker")</title>
+        <style>
+            body {
+                background-color: #C0C0D0;
+            }
+            .banner {
+                background-color: #A0A0A0;
+            }
+            .profile-div {
+                font-family: monospace;
+                font-size: 1.25em;
+                display: inline-block;
+                text-align: center;
+                padding: 2em;
+                background-repeat: no-repeat;
+                background-position: center;
+                color: white;
+            }
+            .container {
+                background-color: #C0C0D0;
+                text-align: center;
+            }
+            #profile-you {
+                background-color: #606080;
+            }
+            #profile-opp {
+                background-color: #606080;
+            }
+            .points {
+                color: white;
+                float: right;
+                text-align: right;
+            }
+            .winning {
+                background-color: #80F0A0;    
+            }
+            .losing {
+                background-color: #F0A080;
+            }
+            #stats {
+                text-align: center;
+                background-color: #C0C0E0;
+                font-family: monospace;
+            }
+            h1 {
+                background-color: #C0C0E0;
+                text-align: center;
+            }
+            h2 {
+                background-color: #C0C0E0;
+                text-align: center;
+            }
+            footer {
+                text-align: center;
+                font-size: 0.75em;
+                font-family: sans-serif;
+            }
+            .point-increase {
+                font-family: monospace;
+                font-size: 2.5em;
+                color: #003F00;
+                position: absolute;
+                border-width: 4px;
+                border-style: solid;
+                border-color: #003F00;
+                background-color: #7FFF7F;
+                padding: 8px;
+            }
+            form {
+                display: inline-block;
+            }
+            button {
+                display: block;
+                margin: 4px auto;
+            }
+            spacer {
+                display: block;
+                margin: 4px auto;
+            }
+            #change-opp-start-points {
+                display: inline-block;
+            }
+            #change-opp {
+                display: inline-block;
+            }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+        <script>
+//------------------------------------------------------------------------------    
+// PROGRAM CONSTANTS   (edit these to make your own!)
+//------------------------------------------------------------------------------
+var YOUR_USERNAME = "ProLife14";         // put your KA username in quotes
+var YOUR_START_POINTS = "2,487,487";        // @spongejr on 29 Jun 2015
+var YOUR_GOAL = 100000;                  // 50K points for Summer Surge badge!
+var OPPONENT_USERNAME = "pamela"     // your opponent's username 
+var OPPONENT_START_POINTS = "";    // @icamlearn at start of event
+var OPP_GOAL = "";                   // 50K points for Summer Surge badge!
+//------------------------------------------------------------------------------
+var USE_EFFECTS = true;
+var API_CALL_URL = "https://www.khanacademy.org/api/internal/user/profile";
+//------------------------------------------------------------------------------
+var Profile = function(username, name, avatar,
+    points, startPoints, goal, background) {
+    this.username = username;
+    this.name = name;
+    this.avatar = avatar;
+    this.points = points;
+    this.startPoints = startPoints;
+    this.goal = goal;
+    this.background = background || "https://www.kasandbox.org/programming-images/avatars/leaf-green.png";
+};
+//------------------------------------------------------------------------------
+var gYourProfile = new Profile(YOUR_USERNAME, YOUR_USERNAME,
+    'https://www.kasandbox.org/programming-images/avatars/questionmark.png',
+    0, YOUR_START_POINTS, YOUR_GOAL);
+var gOpponentProfile = new Profile(OPPONENT_USERNAME, OPPONENT_USERNAME,
+    'https://www.kasandbox.org/programming-images/avatars/questionmark.png',
+    0, OPPONENT_START_POINTS, OPP_GOAL);
+var gWhoseQuery;
+var gStartPoints = {
+    icamlearn: 4166122
+};
+// var gProfiles = {};
+//------------------------------------------------------------------------------
+var storeProfile = function(whose) {};
+//------------------------------------------------------------------------------
+var storeStartPoints = function(whose) {
+    gStartPoints[whose] = $("#points-opp-start").text();
+    gStartPoints[whose] = parseInt(gStartPoints[whose].replace(/,/g, ""), 10);
+};
+//------------------------------------------------------------------------------
+var updateHTML = function() {
+    $('#contestant-you').text("@" + gYourProfile.username);
+    $('#contestant-opp').text("@" + gOpponentProfile.username);
+    $('#points-you-current').text(gYourProfile.points.toLocaleString());
+    $('#points-opp-current').text(gOpponentProfile.points.toLocaleString());
+    $('#name-you').text(gYourProfile.name);
+    $('#name-opp').text(gOpponentProfile.name);
+    $('#avatar-you').html('<img src="'
+        + gYourProfile.avatar
+        + '" width="64" alt="A Khan Academy avatar">');
+    $('#avatar-opp').html('<img src="'
+        + gOpponentProfile.avatar
+        + '" width="64" alt="A Khan Academy avatar">');
+    $('#points-opp-start').text(gOpponentProfile.startPoints.toLocaleString());
+
+    var youEarned = gYourProfile.points - YOUR_START_POINTS;
+    var oppEarned = gOpponentProfile.points - gOpponentProfile.startPoints;
+    var totalPointsGap = Math.abs(gOpponentProfile.points
+        - gYourProfile.points);
+    var earnedPointsGap = Math.abs(youEarned - oppEarned);
+    $('#points-you-earned').text(youEarned.toLocaleString());
+    $('#points-opp-earned').text(oppEarned.toLocaleString());
+    if (gYourProfile.points < gOpponentProfile.points) {
+        $('#compare-total').removeClass("winning");
+        $('#compare-total').addClass("losing").text(
+            totalPointsGap.toLocaleString() + ' points less than your opponent!');
+    } else {
+        $('#compare-total').removeClass("losing");
+        $('#compare-total').addClass("winning").text(
+            totalPointsGap.toLocaleString() + ' points more than your opponent!');
+    }
+    if (youEarned < oppEarned) {
+        $('#compare-earned').removeClass("winning");
+        $('#compare-earned').addClass("losing").text(
+            earnedPointsGap.toLocaleString() + ' points less than your opponent!');
+    } else {
+        $('#compare-earned').removeClass("losing");
+        $('#compare-earned').addClass("winning").text(
+            earnedPointsGap.toLocaleString() + ' points more than your opponent!');
+    }
+    
+    var youToGoal = gYourProfile.goal - youEarned; 
+    var oppToGoal = gOpponentProfile.goal - oppEarned;
+        
+    if (youToGoal <= 0) {
+        $('#points-you-to-goal').text("Achieved!");
+    } else {
+        $('#points-you-to-goal').text(youToGoal.toLocaleString());
+    }
+    
+    if (oppToGoal <= 0) {
+        $('#points-opp-to-goal').text("Achieved!");
+    } else {
+        $('#points-opp-to-goal').text(oppToGoal.toLocaleString());
+    }
+   
+    $('#profile-you').css("background-image",
+        "url(" + gYourProfile.background + ")");
+    $('#profile-opp').css("background-image",
+        "url(" + gOpponentProfile.background + ")");
+};
+//------------------------------------------------------------------------------
+var pointIncreaseRehide = function(who) {
+    who.fadeOut(1750);
+};
+//------------------------------------------------------------------------------
+var handleResponse = function(data) {
+    var pointChange = 0;
+    if (gWhoseQuery === YOUR_USERNAME) {
+        pointChange = data.points - gYourProfile.points;
+        gYourProfile.name = data.nickname;
+        gYourProfile.points = data.points;
+        gYourProfile.avatar = data.avatarSrc;
+        gYourProfile.background = data.backgroundSrc;
+        var $div = $('#you-increase');
+        $('#points-you-increase').text(pointChange.toLocaleString());
+    } else {
+        pointChange = data.points - gOpponentProfile.points;
+        gOpponentProfile.name = data.nickname;
+        gOpponentProfile.points = data.points;
+        if (typeof gStartPoints[gWhoseQuery] === 'undefined') {
+            gOpponentProfile.startPoints = data.points;
+        } else {
+            gOpponentProfile.startPoints = gStartPoints[gWhoseQuery];  
+            // gOpponentProfile.startPoints = gProfiles[gWhoseQuery].startPoints;
+        }
+        gOpponentProfile.avatar = data.avatarSrc;
+        gOpponentProfile.background = data.backgroundSrc;
+        $('#points-opp-increase').text(pointChange.toLocaleString());
+        var $div = $('#opp-increase');
+    }
+    $div.fadeIn(750, function() {
+        pointIncreaseRehide($div);
+    });
+    updateHTML();
+};
+//------------------------------------------------------------------------------
+var updateData = function() {
+    var theURL = API_CALL_URL;
+    theURL += "?username=" + gWhoseQuery;
+    $.getJSON(theURL + "&callback=?", function(data) {
+        handleResponse(data);
+    });
+};
+//------------------------------------------------------------------------------
+var setupHTML = function() {
+    $('#you-increase').hide();
+    $('#opp-increase').hide();
+    $('#change-opp').hide();
+    $('#change-opp-start-points').hide();
+    $('#contestant-you').text("@" + gYourProfile.username);
+    $('#contestant-opp').text("@" + gOpponentProfile.username);
+    $('#name-you').text(gYourProfile.name);
+    $('#name-opp').text(gOpponentProfile.name);
+    $('#points-you-start').text(YOUR_START_POINTS.toLocaleString());
+    $('#points-opp-start').text(gOpponentProfile.startPoints.toLocaleString());
+};
+//------------------------------------------------------------------------------
+$(document).ready(function() {
+    $.fx.off = !USE_EFFECTS;
+    setupHTML();
+    $('.update-btn').click(function() {
+        if (this.id === 'update-you') {
+            gWhoseQuery = YOUR_USERNAME;
+        } else {
+            gWhoseQuery = gOpponentProfile.username;
+        }
+        updateData();
+    });
+    $('#choose-opp').click(function() {
+        $('#name-opp').hide();
+        $('#change-opp').show();
+    });
+    $('#input-opp-submit').click(function() {
+        $('#change-opp').hide();
+        $('#points-opp-start').show();
+        var newOpp = $('#input-opp').val();
+        gOpponentProfile.username = newOpp;
+        gOpponentProfile.points = 0;
+        gOpponentProfile.startPoints = 0;
+        $('#name-opp').show();
+        $('#update-opp').click();
+    });
+    $('#change-opp-start-points-button').click(function() {
+        $('#points-opp-start').hide();
+        $('#change-opp-start-points').show();
+    });
+    $('#change-opp-start-points-submit').click(function() {
+        $('#change-opp-start-points').hide();
+        $('#points-opp-start').show();
+        var newOppStartPts = $('#input-opp-start-points').val();
+        newOppStartPts = parseInt(newOppStartPts.replace(/,/g, ""), 10);
+        gOpponentProfile.startPoints = newOppStartPts;
+        updateHTML();
+        storeStartPoints(gOpponentProfile.username);
+    });
+});
+        </script>
+    </head>
+
+    <body>
+    <div class="banner">
+        <h1>Points Race!</h1>
+        <h2 id="contestants">
+            <span class="contestant" id="contestant-you">You</span>
+            &nbsp;&nbsp;vs.&nbsp;&nbsp;
+            <span class="contestant" id="contestant-opp">Someone</span>
+        </h2>
+    </div>
+    <div class="container">
+        <!--   YOUR SIDE   -->
+        <div class="profile-div" id="profile-you">
+            <span id="avatar-you"><img src="https://www.kasandbox.org/programming-images/avatars/questionmark.png" alt="question mark" width="64"></span>
+            <h3><span id="name-you">Your profile here.</span></h3>
+            <div class="point-increase" id="you-increase">+ <span id="points-you-increase">?</span> pts!</div>
+            Starting points: <span id="points-you-start" class="points"></span><br>
+            Current points: <span id="points-you-current" class="points"></span><br>
+            Earned so far: <span id="points-you-earned" class="points"></span><br>
+            Distance to goal:&nbsp;<span id="points-you-to-goal" class="points"></span>
+            <button id="update-you" class="update-btn">Update me!</button>
+        </div>
+        
+        <!--   OPPONENT'S SIDE   -->
+        <div class="profile-div" id="profile-opp">
+            <span id="avatar-opp"><img src="https://www.kasandbox.org/programming-images/avatars/questionmark.png " width="64" alt="question mark"></span>
+            <h3><span id="name-opp">Their profile here.</span></h3>
+            <div id="change-opp">
+                <input id="input-opp" placeholder="Type a username!">
+                <button id="input-opp-submit">Submit</button>
+            </div>
+            <div class="point-increase" id="opp-increase">+ <span id="points-opp-increase">?</span> pts!</div>
+            
+            <br>Starting points:
+            <div id="change-opp-start-points">
+                <input id="input-opp-start-points">
+                <button id="change-opp-start-points-submit">Submit</button></div>
+            <span id="points-opp-start" class="points"></span>
+            <br>
+            
+            Current points: <span id="points-opp-current" class="points"></span><br>
+            Earned so far: <span id="points-opp-earned" class="points"></span><br>
+            Distance to goal:&nbsp;<span id="points-opp-to-goal" class="points"></span>
+            <button id="update-opp" class="update-btn">Update opponent</button>
+            <button id="choose-opp">Choose opponent</button>
+            <button id="change-opp-start-points-button">Change start points</button>
+        </div>
+    </div>
+    <!--  STATS SECTION   -->
+    <hr>
+    <div id="stats">
+            <h2>Stats</h2>
+            You currently have: <span id="compare-total"></span><br>
+            You have earned: <span id="compare-earned"></span>
+        </div>
+    
+    </body>
+    <footer>
+        <hr>
+        <p>Points Race Scoreboard for Khan Academy v1.13 by <a href="https://www.khanacademy.org/profile/spongejr/">@spongejr</a></p>
+        <p>
+            This product uses the Khan Academy API but is not endorsed or certified by Khan Academy.<br>
+            Project made available under <a href="http://opensource.org/licenses/mit-license.php">the MIT license</a>. Official version can probably be found <a href="https://www.khanacademy.org/computer-programming/points-race-scoreboard-for-khan-academy/5202442481434624">here</a> or <a href="http://www.spongejr.com/ka/pointsboard/">here</a>.
+        </p>
+        
+    </footer>
+<!--
+    The MIT License (MIT)
+
+Copyright (c) 2015 @spongejr on Khan Academy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE. -->
+</html>
