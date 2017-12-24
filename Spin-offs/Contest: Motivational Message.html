@@ -1,0 +1,205 @@
+// Link:  https://www.khanacademy.org/computer-programming/contest-motivational-message/5576213784035328
+// Created:  10/20/2015 07:54
+
+
+
+
+<!DOCTYPE html>
+<!-- 
+I have been making webpages for 1-2 months off and on. I've gotten more serious in the last few weeks and learned much more.
+
+NOTE TO PAMELA: I reccomend viewing this program on a Mac. I made this program on that kind of C. It may not look right on another C.
+
+I got all these quotes from the web. If someone has the same quote I have, they must have found it on there too. I haven't taken anyone's quote. Just wanted that understood.
+
+I have taken these webpage courses on KA: 
+100% - Intro to HTML/CSS: Making webpages,
+100% - HTML/JS: Making webpages interactive,
+100% - HTML/JS: Making webpages interactive with jQuery.
+
+I have NOT mastered/learned everything in these courses, but enough to enter contests. Most of my time was spent trying to make it look good, the structure and jQuery was easy. 
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Contest: Motivational Message</title>
+        <link href='https://fonts.googleapis.com/css?family=Gabriela' rel='stylesheet' type='text/css'>
+        <style>
+            body {
+                background-color: rgb(0, 46, 138);
+            }
+            /* This makes the title above each quote */
+            #motivational-quotes {
+                position: absolute;
+                margin-left: 95px;
+                margin-top: 14px;
+                width: 500px;
+                height: 60px;
+                border-bottom: 1.5px solid black;
+                padding: 0px;
+                color: white;
+                text-align: center;
+                text-shadow: black 2px 2px;
+                font-size: 45px;
+                font-style: italic;
+                font-family: "cochin", gabriela, sans-serif;
+                z-index: 5;
+            }
+            
+        /* I know that I should/could use classes here, but if I did that, all the quotes would show up at once, and that's not what I want. */
+            #quote1, #quote2, #quote3, #quote4, #quote5, #quote6 {
+                background-color: rgb(70, 124, 250);
+                border-radius: 10px;
+                box-shadow: 0px 5px 27px rgba(0, 0, 0, 0.8);
+                border: double rgb(255,255,255) 8px;
+                padding-top: 90px;
+                height: 150px;
+                color: white;
+                text-shadow: black 2px 2px;
+                text-align: center;
+                font-size: 28px;
+                font-family: "cochin", gabriela, sans-serif;
+            }
+            
+            #speaker, #speaker2, #speaker3, #speaker4, #speaker5, #speaker6{
+                margin-top: -55px;
+                text-align: center;
+                color: white;
+                letter-spacing: 1.7px;
+                text-shadow: black 2px 2px;
+                font-family: sans-serif;
+                font-style: italic;
+            }
+            
+            /* This makes the "continue" button */
+            button {
+                background-color: rgb(106, 162, 252);
+                margin-left: 275px;
+                width: 124px;
+                height: 40px;
+                color: white;
+                font-size: 20px;
+                margin-top: 20px;
+                border: 1px solid white;
+                border-radius: 20px;
+            }
+            
+            /* This makes the background-color of the button change when your mouse moves over it. It also changes the mouse to a hand/pointer. */
+            button:hover {
+                color: white; /*rgb(106, 162, 252);*/
+                background-color: rgb(125, 177, 255);
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+    <h1 id="motivational-quotes"> Motivational Quotes</h1>
+    <!-- All the quotes are below-->
+    <h1 id="quote1"> Nothing is impossible, the word itself says "I'm possible"!</h1>
+    <h1 id="quote2"> Believe you can, and you're halfway there.</h1>
+    <h1 id="quote3"> I have not failed. I've just found 10,000 ways that won't work.</h1>
+    <h1 id="quote4"> You can learn anything, but not everything.</h1>
+    <h1 id="quote5"> What seems to us as bitter trials are often blessings in disguise.</h1>
+    <h1 id="quote6"> Try not to become a person of success, but rather try to become a person of value.</h1>
+    <!-- Here are the authors of the quotes-->
+    <h3 id="speaker"> Audrey Hepburn</h3>
+    <h3 id="speaker2"> Teddy Roosevelt</h3>
+    <h3 id="speaker3"> Thomas A. Edison</h3>
+    <h3 id="speaker4"> Anonymous</h3>
+    <h3 id="speaker5"> Oscar Wilde</h3>
+    <h3 id="speaker6"> Albert Einstein</h3>
+    <button>Continue</button>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    
+    <script>
+    // The quote variable keeps multiple quotes from showing up at once. When you press the button, the variable adds one, showing the next quote.
+    var quote = 0;
+    // I have to hide everything.
+        $("#motivational-quotes").hide();
+        $("#quote1").hide();
+        $("#quote2").hide();
+        $("#quote3").hide();
+        $("#quote4").hide();
+        $("#quote5").hide();
+        $("#quote6").hide();
+        $("#speaker").hide();
+        $("#speaker2").hide();
+        $("#speaker3").hide();
+        $("#speaker4").hide();
+        $("#speaker5").hide();
+        $("#speaker6").hide();
+        $("button").hide();
+        
+        $("#motivational-quotes").delay(500).fadeIn(1500);
+            $("#quote1").delay(500).fadeIn(1500, function() {
+            $("#speaker").fadeIn(1500, function() {
+                $("button").fadeIn(1500);
+            });
+        });
+
+        $("button").click(function(){
+            quote++;
+            if (quote === 1) {
+             $("#quote1").fadeOut(1500);
+             $("#speaker").fadeOut(1500);
+             $("#motivational-quotes").fadeOut(1500, function(){
+                 $("#motivational-quotes").fadeIn(1500);
+                 $("#quote2").fadeIn(1500, function(){
+                     $("#speaker2").fadeIn(1500);
+                 });
+             });
+            }
+        });
+        $("button").click(function(){
+            if (quote === 2) {
+            $("#quote2").fadeOut(1500);
+            $("#motivational-quotes").fadeOut(1500);
+            $("#speaker2").fadeOut(1500, function(){
+                $("#motivational-quotes").fadeIn(1500);
+                $("#quote3").fadeIn(1500, function(){
+                    $("#speaker3").fadeIn(1500); 
+                });
+            });
+            }
+        });
+        $("button").click(function(){
+            if (quote === 3) {
+                $("#quote3").fadeOut(1500);
+                $("#motivational-quotes").fadeOut(1500);
+                $("#speaker3").fadeOut(1500, function(){
+                    $("#motivational-quotes").fadeIn(1500);
+                    $("#quote4").fadeIn(1500, function(){
+                        $("#speaker4").fadeIn(1500);     
+                    });
+                });
+            }
+        })
+        $("button").click(function() {
+            if (quote === 4) {
+                $("#quote4").fadeOut(1500);
+                $("#motivational-quotes").fadeOut(1500);
+                $("#speaker4").fadeOut(1500, function(){
+                    $("#motivational-quotes").fadeIn(1500);
+                    $("#quote5").fadeIn(1500, function(){
+                        $("#speaker5").fadeIn(1500);
+                    })
+                })
+            }
+        })
+        $("button").click(function(){
+            if (quote === 5) {
+                $("#quote5").fadeOut(1500);
+                $("#motivational-quotes").fadeOut(1500);
+                $("#speaker5").fadeOut(1500, function(){
+                    $("#motivational-quotes").fadeIn(1500);
+                    $("#quote6").fadeIn(1500, function(){
+                        $("button").fadeOut(1500);
+                        $("#speaker6").fadeIn(1500);
+                    })
+                })
+            }
+        })
+    </script>
+    </body>
+</html>
