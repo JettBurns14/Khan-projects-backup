@@ -1,0 +1,40 @@
+// Link:  https://www.khanacademy.org/computer-programming/spin-off-of-4th-of-july-sparkler/5013397709651968
+// Created:  11/26/2015 20:07
+
+
+
+
+
+var particle = function(x, y){
+    this.x = x;
+    this.y = y;
+    this.trajectory = random(4, 6);
+    
+};
+
+particle.prototype.draw= function() {
+    stroke(random(200, 255), 0, random(0, 25));
+    strokeWeight(random(1, 2));
+    point(this.x, this.y);
+
+    this.y+=this.trajectory;
+};
+
+var particles = [];
+
+draw = function() {
+    cursor("None");
+    background(255, 255, 255);
+  
+    particles.push(
+        new particle(random(mouseX-4, mouseX+10), random(mouseY-4, mouseY+4))
+    );
+    stroke(102, 86, 37);
+    line(mouseX, mouseY, mouseX+40, mouseY+60);
+    for (var i in particles) {
+        particles[i].draw();
+        if (particles[i].y > 400) {
+            particles.splice(i, 1);
+        }
+    }
+};
